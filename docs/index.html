@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Air India AI171 Crash — YouTube Coverage & Sentiment Dashboard</title>
+</head>
+<body>
+<style>
+  :root{
+    --page:#f9f9f7; --surface:#fcfcfb; --ink:#141412; --ink-2:#52514e; --muted:#898781;
+    --hairline:#e1e0d9; --border:rgba(11,11,11,.10);
+    --accent:#2a78d6; --accent-2:#eb6834;
+    --pos:#2a78d6; --neu:#a8a69e; --neg:#e34948;
+    --chip:#f0efec; --track:#f0efec;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])){
+      --page:#0d0d0d; --surface:#1a1a19; --ink:#f4f4f2; --ink-2:#c3c2b7; --muted:#898781;
+      --hairline:#2c2c2a; --border:rgba(255,255,255,.10);
+      --accent:#3987e5; --accent-2:#d95926;
+      --pos:#3987e5; --neu:#7c7b74; --neg:#e66767;
+      --chip:#242422; --track:#242422;
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#f4f4f2; --ink-2:#c3c2b7; --muted:#898781;
+    --hairline:#2c2c2a; --border:rgba(255,255,255,.10);
+    --accent:#3987e5; --accent-2:#d95926;
+    --pos:#3987e5; --neu:#7c7b74; --neg:#e66767;
+    --chip:#242422; --track:#242422;
+  }
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--page); color:var(--ink);
+    font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; margin:0; overflow-x:clip;}
+  .wrap{max-width:1060px; margin:0 auto; padding:40px 22px 64px;}
+  a{color:var(--accent)}
+  header{margin-bottom:28px}
+  .eyebrow{font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-weight:600}
+  h1{font-size:clamp(22px,3.4vw,30px); line-height:1.2; margin:.35em 0 .3em; text-wrap:balance; font-weight:700}
+  .sub{color:var(--ink-2); max-width:62ch; margin:0}
+  .note{margin-top:14px; padding:10px 14px; border:1px solid var(--border); border-left:3px solid var(--muted);
+    border-radius:6px; color:var(--ink-2); font-size:13.5px; background:var(--surface)}
+  h2{font-size:17px; margin:0 0 2px; font-weight:700}
+  .sect{margin-top:40px}
+  .sect > p.lede{color:var(--ink-2); margin:2px 0 14px; font-size:13.5px; max-width:70ch}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 18px 14px}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media (max-width:840px){.grid2{grid-template-columns:1fr}}
+  .card h3{margin:0 0 12px; font-size:13.5px; font-weight:600; color:var(--ink-2)}
+  /* KPI row */
+  .kpis{display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-top:22px}
+  @media (max-width:920px){.kpis{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px}
+  .kpi .lbl{font-size:11.5px; color:var(--muted); letter-spacing:.02em}
+  .kpi .val{font-size:24px; font-weight:650; margin-top:2px}
+  .kpi .sub2{font-size:11.5px; color:var(--ink-2); margin-top:1px}
+  /* controls */
+  .controls{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 14px}
+  select{font:inherit; font-size:13px; color:var(--ink); background:var(--surface);
+    border:1px solid var(--hairline); border-radius:7px; padding:6px 10px; max-width:280px}
+  .chip{font:inherit; font-size:12.5px; border:1px solid var(--hairline); background:var(--chip); color:var(--ink-2);
+    border-radius:999px; padding:5px 12px; cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff}
+  .chip:focus-visible,select:focus-visible,.tab:focus-visible,.tgl:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  /* bar lists */
+  .barlist{display:grid; gap:9px}
+  .brow{display:grid; grid-template-columns:minmax(120px,240px) 1fr; gap:10px; align-items:center; font-size:12.5px}
+  .brow .lb{color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .brow .tr{display:flex; align-items:center; gap:8px; min-width:0}
+  .brow .bar{height:15px; border-radius:0 4px 4px 0; background:var(--accent); min-width:2px; flex:0 0 auto}
+  .brow .vl{font-size:12px; color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap}
+  .brow.clickable{cursor:pointer}
+  .brow.clickable:hover .lb{color:var(--ink)}
+  .brow.sel .lb{color:var(--ink); font-weight:650}
+  .empty{color:var(--muted); font-size:13px; padding:8px 0}
+  /* segmented sentiment bar */
+  .tglrow{display:flex; gap:6px; margin-bottom:14px}
+  .tgl{font:inherit; font-size:12.5px; border:1px solid var(--hairline); background:transparent; color:var(--ink-2);
+    border-radius:7px; padding:5px 11px; cursor:pointer}
+  .tgl[aria-pressed="true"]{background:var(--chip); color:var(--ink); font-weight:600; border-color:var(--muted)}
+  .seg{display:flex; height:34px; border-radius:6px; overflow:hidden; gap:2px; background:var(--surface)}
+  .seg div{display:flex; align-items:center; justify-content:center; color:#fff; font-size:12.5px; font-weight:600; min-width:0}
+  .seg .s-neu{color:var(--ink)}
+  .legend{display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; font-size:12.5px; color:var(--ink-2)}
+  .legend .k{display:inline-flex; align-items:center; gap:6px}
+  .dot{width:9px; height:9px; border-radius:50%; display:inline-block}
+  /* trend svg */
+  svg text{font:11.5px system-ui,-apple-system,"Segoe UI",sans-serif; fill:var(--muted)}
+  svg .gl{stroke:var(--hairline); stroke-width:1}
+  svg .ax{stroke:var(--hairline)}
+  /* tabs */
+  .tabs{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap}
+  .tab{font:inherit; font-size:12.5px; border:1px solid var(--hairline); background:transparent; color:var(--ink-2);
+    border-radius:7px; padding:5px 11px; cursor:pointer}
+  .tab[aria-pressed="true"]{background:var(--chip); color:var(--ink); font-weight:600; border-color:var(--muted)}
+  /* comment cards */
+  .quotes{display:grid; gap:10px}
+  .q{border:1px solid var(--border); border-radius:8px; padding:11px 14px; background:var(--surface); font-size:13.5px}
+  .q .meta{display:flex; gap:8px; align-items:center; margin-bottom:4px; font-size:11.5px; color:var(--muted)}
+  .q .meta .dot{width:8px;height:8px}
+  .q p{margin:0; color:var(--ink-2); overflow-wrap:anywhere}
+  /* takeaways */
+  .takes{counter-reset:tk; display:grid; gap:12px; padding:0; margin:14px 0 0; list-style:none}
+  .takes li{position:relative; padding:14px 16px 14px 52px; background:var(--surface);
+    border:1px solid var(--border); border-radius:10px}
+  .takes li::before{counter-increment:tk; content:counter(tk);
+    position:absolute; left:16px; top:14px; width:24px; height:24px; border-radius:50%;
+    background:var(--chip); color:var(--ink-2); font-size:12.5px; font-weight:650;
+    display:flex; align-items:center; justify-content:center}
+  .takes b{font-weight:650}
+  .takes .why{display:block; margin-top:3px; color:var(--ink-2); font-size:13px}
+  /* tables + footer */
+  details{margin-top:12px; font-size:13px}
+  summary{cursor:pointer; color:var(--muted)}
+  table{border-collapse:collapse; margin-top:8px; width:100%; font-variant-numeric:tabular-nums}
+  th,td{text-align:left; padding:5px 10px 5px 0; border-bottom:1px solid var(--hairline); font-size:12.5px}
+  th{color:var(--muted); font-weight:600}
+  td.num,th.num{text-align:right}
+  .lims{font-size:13.5px; color:var(--ink-2)}
+  .lims li{margin-bottom:6px}
+  footer{margin-top:44px; padding-top:16px; border-top:1px solid var(--hairline); color:var(--muted); font-size:12.5px}
+  #tip{position:fixed; pointer-events:none; background:var(--ink); color:var(--page); font-size:12px;
+    padding:5px 9px; border-radius:6px; opacity:0; transition:opacity .12s; z-index:10; max-width:280px}
+  @media (prefers-reduced-motion: reduce){ #tip{transition:none} }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">YouTube media coverage &amp; public sentiment</div>
+    <h1>Air India AI171 Ahmedabad Crash — Coverage, Engagement &amp; Comment Tone</h1>
+    <p class="sub">93 news videos · 42 channels · 45.0M views · 17,838 comments analyzed with VADER.
+      Dataset scraped 2025-06-16 (Kaggle: Air India Ahmedabad Crash YouTube Video Dataset).</p>
+    <div class="note"><b>Read this first:</b> sentiment measures the <i>tone of comment language</i>, not factual
+      accuracy — grief vocabulary scores “negative” inside compassionate condolences. Nothing here implies anything
+      about the cause of the crash; that determination belongs to the official investigation.</div>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section class="sect">
+    <h2>Coverage &amp; attention</h2>
+    <p class="lede">Which videos and outlets captured the audience. Filter by channel or title theme — the charts
+      and the two left-hand KPIs follow the filter.</p>
+    <div class="controls">
+      <select id="chSel" aria-label="Filter by channel"><option value="">All channels</option></select>
+      <button class="chip" data-flag="surv" aria-pressed="false">Mentions survivor</button>
+      <button class="chip" data-flag="boe" aria-pressed="false">Mentions Boeing/787</button>
+      <button class="chip" data-flag="live" aria-pressed="false">Live / breaking</button>
+      <button class="chip" data-flag="pil" aria-pressed="false">Mentions pilot</button>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3 id="tvTitle">Top 10 videos by views</h3><div class="barlist" id="topVideos"></div></div>
+      <div class="card"><h3>Top 10 channels by total views <span style="font-weight:400">— click to filter</span></h3>
+        <div class="barlist" id="topChannels"></div></div>
+    </div>
+    <details><summary>Data table — channels</summary><div id="chTable"></div></details>
+  </section>
+
+  <section class="sect">
+    <h2>Comment tone (VADER)</h2>
+    <p class="lede">All 17,838 comments come from one Firstpost video (PM’s site visit &amp; survivor meeting) —
+      a deep single thread, not a sample of all coverage.</p>
+    <div class="card">
+      <div class="tglrow" role="group" aria-label="Sentiment weighting">
+        <button class="tgl" id="tglN" aria-pressed="true">Share of comments</button>
+        <button class="tgl" id="tglL" aria-pressed="false">Share of comment-likes</button>
+      </div>
+      <div class="seg" id="segBar"></div>
+      <div class="legend" id="segLegend"></div>
+    </div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="card"><h3>Sentiment mix by approximate day</h3><div id="trend"></div></div>
+      <div class="card"><h3>Comment volume by approximate day</h3><div class="barlist" id="volume" style="margin-top:6px"></div>
+        <p style="font-size:11.5px;color:var(--muted);margin:12px 0 0">Days derived from relative labels (“3 days ago”) vs the
+        2025-06-16 scrape — approximate to ±1 day.</p></div>
+    </div>
+    <details><summary>Data table — sentiment by day</summary><div id="dayTable"></div></details>
+  </section>
+
+  <section class="sect">
+    <h2>What people talked about</h2>
+    <p class="lede">Two parallel conversations run through the thread: mourning, and armchair technical analysis.
+      Keyword counts are descriptive only.</p>
+    <div class="card">
+      <div class="tabs" role="group" aria-label="Keyword source">
+        <button class="tab" data-kw="kwComments" aria-pressed="true">Comment keywords</button>
+        <button class="tab" data-kw="bigrams" aria-pressed="false">Comment bigrams</button>
+        <button class="tab" data-kw="kwTitles" aria-pressed="false">Video-title keywords</button>
+      </div>
+      <div class="barlist" id="kwList"></div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2>Most-liked comments by sentiment</h2>
+    <p class="lede">The audience-validated voices in the thread, per VADER class. Note how many “negative” ones are
+      condolences — the classifier is scoring grief vocabulary.</p>
+    <div class="card">
+      <div class="tabs" role="group" aria-label="Sentiment class">
+        <button class="tab" data-s="positive" aria-pressed="true">Positive</button>
+        <button class="tab" data-s="negative" aria-pressed="false">Negative</button>
+        <button class="tab" data-s="neutral" aria-pressed="false">Neutral</button>
+      </div>
+      <div class="quotes" id="quotes"></div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <h2>Key takeaways</h2>
+    <ol class="takes">
+      <li><b>Attention concentrated in a few outlets.</b> The top 5 of 42 channels captured <b>52.2%</b> of the
+        45.0M total views; the top 5 individual videos alone took 24.5%.
+        <span class="why">India Today led on volume — 21 videos (22.6% of all coverage) for 10.8M views — while CNN and
+        CNN-News18 earned the highest per-video averages (~0.8–1.0M).</span></li>
+      <li><b>Human-story framing won the view counts.</b> 19 of 93 titles (20.4%) mention the survivor; 4 of the top
+        10 videos by views center the survivor or victims.
+        <span class="why">Short verified-footage clips converted best — NDTV’s 1.1-minute CCTV clip earned ~1.55M views
+        per minute of runtime, the dataset’s highest.</span></li>
+      <li><b>Comment tone is sombre, not hostile.</b> 45.3% negative · 29.2% positive · 25.5% neutral
+        (mean compound −0.10) — but the top bigrams are <i>rest peace</i>, <i>condolences families</i>,
+        <i>loved ones</i>: grief language that VADER scores negative by construction.</li>
+      <li><b>A large speculation thread runs alongside the mourning.</b> <i>boeing</i> is the #3 comment keyword
+        (1,465 mentions); <i>landing gear</i>, <i>black box</i>, and <i>pilot error</i> all rank in the top-10 bigrams.
+        <span class="why">For moderation teams, the actionable surface is unverified speculation — not “negativity,”
+        which is mostly condolence.</span></li>
+      <li><b>Compassion resonates most per comment.</b> Positive comments average <b>11.0 likes</b> vs 9.0 (negative)
+        and 5.4 (neutral) — hope, solidarity, and the survivor’s story are the most audience-validated messages.</li>
+      <li><b>Tone was stable across all five scraped days.</b> The negative share stayed within 42.8–48.7% with no
+        escalation — volume decayed after the ~day-3 peak (7,860 → 1,585 comments) but the mix barely moved.</li>
+    </ol>
+  </section>
+
+  <section class="sect">
+    <h2>Limitations &amp; ethics</h2>
+    <ul class="lims">
+      <li><b>Single-video comment sample:</b> sentiment describes one Firstpost thread, not all crash coverage.</li>
+      <li><b>Missing video metrics:</b> the source data has no video likes, comment counts, publish dates, or
+        subscriber counts — engagement-rate and upload-time analyses were skipped, never imputed.</li>
+      <li><b>Approximate dates:</b> relative labels resolved against the scrape date (±1 day).</li>
+      <li><b>VADER is English-tuned:</b> Hinglish and Devanagari comments skew neutral; sarcasm and mourning idiom are
+        imperfectly captured.</li>
+      <li>This dashboard describes media coverage and public discourse around a tragedy in which 260+ people died.
+        It assigns no blame and draws no conclusions about the crash’s cause.</li>
+    </ul>
+  </section>
+
+  <footer>Built with Python · pandas · VADER · SQLite. Full pipeline, SQL, and notebook in the
+    <b>AirIndia_YouTube_Analytics</b> repository. Data: Kaggle, scraped 2025-06-16.</footer>
+</div>
+<div id="tip" role="status"></div>
+
+<script>
+const DATA = {"videos":[{"t":"Air India plane crashes shortly after take off in Ahmedabad","c":"Al Jazeera English","v":405326,"d":5.7,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Video shows Air India plane crashing in Ahmedabad","c":"CBS News","v":416455,"d":3.5,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash: What Air India Pilot's Final Words Could Mean? | What Is A Black Box?","c":"India Today","v":12665,"d":310.6,"surv":false,"boe":false,"live":false,"pil":true},{"t":"Air India plane crash death toll rises to 270 | BBC News","c":"BBC News","v":381289,"d":4.6,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash: What Air India Pilot's Final Words Could Mean | India Today","c":"India Today","v":56372,"d":645.4,"surv":false,"boe":false,"live":false,"pil":true},{"t":"Ahmedabad Plane Crash: 2nd Black Box Recovered Of Air India Flight AI 171 From Crash Site","c":"Republic World","v":8661,"d":3.2,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Air India Salutes its Fallen Comrades | Ahmedabad Airplane Crash News | India Today","c":"India Today","v":116262,"d":4.3,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Air India confirms 241 on board plane killed with one survivor in Ahmedabad crash | BBC News","c":"BBC News","v":506677,"d":10.5,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Big Breakthrough in Ahmedabad Plane Crash Investigation, Black Box Of Air India 171 Plane Found","c":"India Today","v":84818,"d":7.3,"surv":false,"boe":false,"live":false,"pil":false},{"t":"LIVE: Black Box Recovered, Air India Plane Crash Investigation Begins | Ahmedabad Plane Crash News","c":"India Today","v":284102,"d":715.0,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Shocking Video: 2nd Video Of Ahmedabad Air India Flight Crash Seconds After Takeoff | India Today","c":"India Today","v":171337,"d":2.0,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash: Experts Decode Pilot's Last Words And Details Of Black Box | India Today","c":"India Today","v":1480884,"d":6.9,"surv":false,"boe":false,"live":false,"pil":true},{"t":"Air India Plane Crash: Ahmedabad Civil Hospital Identified 47 Victims After DNA Testing","c":"DNAIndiaNews","v":367514,"d":1.4,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Lone survivor of Air India 171 Crash Recounts Miraculous Escape | Ahmedabad Plane Crash","c":"India Today","v":162891,"d":19.4,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash Live Updates: Rescue Operations Continue In Air India Disaster | India Today","c":"India Today","v":941602,"d":715.0,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Ahmedabad Plane Crash News LIVE | Air India Airplane Crash In Ahmedabad | Ahmedabad Airplane Crash","c":"India Today","v":1611249,"d":501.8,"surv":false,"boe":false,"live":true,"pil":false},{"t":"LIVE | Ahmedabad Plane Crash Video Shows Moments of Destruction | Air India Plane Crash | N18L","c":"CNN-News18","v":181570,"d":325.3,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Ahmedabad Plane Crash | Air India Flight With 242 Crashes Into Students' Hostel | WION","c":"WION","v":89290,"d":8.6,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Air India Crash I BA 787 Chennai Flight Turns Back, Saudia Airline Smoke Scare I Boeing I Barkha","c":"Mojo Story","v":7920,"d":61.4,"surv":false,"boe":true,"live":false,"pil":false},{"t":"How Were Pilot's Last Moments Before Air India AI 171 Crash | Ahmedabad | India Today","c":"India Today","v":279838,"d":2.4,"surv":false,"boe":false,"live":false,"pil":true},{"t":"More than 200 dead in Air India crash near Ahmedabad","c":"news.com.au","v":374627,"d":1.4,"surv":false,"boe":false,"live":false,"pil":false},{"t":"US’ NTSB and Boeing officials visit Air India AI-171 crash site in Ahmedabad","c":"ANI News","v":59709,"d":2.9,"surv":false,"boe":true,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash: Air India Flight Carrying 133 Passengers Crashes Near Airport | News18","c":"CNN-News18","v":683547,"d":3.3,"surv":false,"boe":false,"live":false,"pil":false},{"t":"At least one survivor from Air India plane crash, Ahmedabad police say","c":"Guardian News","v":73797,"d":1.3,"surv":true,"boe":false,"live":false,"pil":false},{"t":"LIVE : Ahmedabad Plane Crash | Air India Ordered Safety Checks After AI-171 Disaster | News9","c":"NEWS9 Live","v":119437,"d":190.4,"surv":false,"boe":false,"live":true,"pil":false},{"t":"‘Pilots Last Words Were…’: Govt On Air India Flight Crash In Ahmedabad","c":"NDTV Profit","v":338006,"d":2.1,"surv":false,"boe":false,"live":false,"pil":true},{"t":"Ahmedabad plane crash: Air India flight AI171 crashes, 242 on board","c":"The Hindu","v":694694,"d":1.9,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Miracle! Air India Passenger Emerges After Ahmedabad Plane Crash, Reveals Survival Story | Watch","c":"Hindustan Times","v":303950,"d":3.3,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Air India crash: What could have gone wrong?","c":"Sky News","v":613451,"d":2.9,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Air India Plane Crash: Teen Who Recorded Viral Air India Crash Video ‘Very Scared’ | Ahmedabad Plane","c":"DNAIndiaNews","v":35902,"d":2.2,"surv":false,"boe":false,"live":false,"pil":false},{"t":"The Moment an Air India Flight Crashed Near Ahmedabad Airport","c":"The Indian Express","v":504288,"d":0.4,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash News Live Updates: Air India CEO Campbell Wilson Briefing | Air India Crash","c":"India Today","v":18709,"d":715.0,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Ahmedabad Plane Crash | CCTV Video Shows Air India Flight Trying To Take Off, Crashing Into Building","c":"NDTV","v":1679424,"d":1.1,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Miracle Survivor, Ramesh, Found In Air India Plane Crash, Jumped From Seat 11A | Ahmedabad Crash","c":"India Today","v":1728205,"d":5.4,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Air India crash: Investigators recover black box as families wait for answers","c":"Global News","v":510722,"d":2.0,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Pilot Sumit Sabharwal Issued A Mayday Minutes After Takeoff From Ahmedabad Airport | N18V","c":"CNN-News18","v":2282833,"d":4.7,"surv":false,"boe":false,"live":false,"pil":true},{"t":"British national survives Air India plane crash, condition unknown","c":"ABC News","v":559662,"d":6.6,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Air India Ahmedabad Crash Veteran NTSB Investigator Greg Feith On What Videos Reveal","c":"The Indian Express","v":148211,"d":29.7,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Doctor and family among Air India crash victims | BBC News India","c":"BBC News India","v":50460,"d":2.3,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash: First Visuals From Air India Flight Crash Site; Rescue Ops Underway | N18V","c":"CNBC-TV18","v":594418,"d":5.0,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash LIVE: Aviation Expert Captain Steve Discusses Theories Behind Air India Crash","c":"India Today","v":75368,"d":541.1,"surv":false,"boe":false,"live":true,"pil":true},{"t":"Smoke rises above Ahmedabad in first images from Air India plane crash","c":"Guardian News","v":462727,"d":0.4,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Air India Boeing 787-8 Dreamliner Crashes In Ahmedabad: Over 200 Dead, One Miracle Survivor Emerges","c":"India Today","v":168104,"d":48.1,"surv":true,"boe":true,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash | Video Shows Moment Air India Ahmedabad-London Plane Crashed After Take Off","c":"NDTV","v":432775,"d":6.4,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Aviation Ministry Press Briefing On Ahmedabad Plane Crash LIVE | Air India Plane Crash Updates","c":"India Today","v":97452,"d":715.0,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Ahmedabad Plane Crash: Air India Flight Crashes Near Ahmedabad Airport, 242 Passengers On Board","c":"India Today","v":159391,"d":7.2,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash LIVE: Reason Behind Air India Plane Crash Revealed? | Gujarat Plane Crash LIVE","c":"WION","v":184467,"d":362.7,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Ahmedabad Plane Crash Shocking VIDEO: Moment Air India Flight With 242 People Crashes Near Ahmedabad","c":"Oneindia News","v":268390,"d":2.1,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Air India Plane Crash: What Is A Black Box In An Aircraft?","c":"NDTV","v":255861,"d":1.4,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Live: Air India Ahmedabad–London Flight Crashes Minutes After Takeoff","c":"Business Today","v":606508,"d":468.3,"surv":false,"boe":false,"live":true,"pil":false},{"t":"How Air India Flight Crashed Just After Take Off | Plane Crash | Ahmedabad | India Today","c":"India Today","v":3034471,"d":2.3,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Boeing in Hot Water After Air India Plane Crash; Black Box Recovered | Vantage With Palki Sharma","c":"Firstpost","v":441110,"d":7.5,"surv":false,"boe":true,"live":false,"pil":false},{"t":"At least one passenger survived the Air India crash, police say","c":"CNN","v":1703881,"d":10.6,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Air India Crash: The 6 Crew Members India Lost: Stories of Service, Dreams & Sacrifice","c":"The Indian Express","v":1000924,"d":11.2,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash Survivor News Live | Air India Confirms 241 Passengers Killed, Only 1 Survivor","c":"India Today","v":95431,"d":314.4,"surv":true,"boe":false,"live":true,"pil":false},{"t":"British man survives Air India plane crash that kills 290","c":"Channel 4 News","v":529289,"d":9.3,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Air India Plane Crash: 241 Killed — Sole Survivor Breaks Silence on DD India","c":"DD India","v":1904649,"d":1.9,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Sole survivor of Air India crash describes the moments after impact","c":"CNN","v":293171,"d":9.9,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Air India Crash: Black Box Recovered, PM Visits Site as Death Toll Reaches 265","c":"The Indian Express","v":107332,"d":5.4,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Breaking | Air India Flight With 242 Passengers Crashes Minutes After Takeoff At Ahmedabad Airport","c":"Hindustan Times","v":758449,"d":2.6,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Air India plane crashes after takeoff in Ahmedabad, 'many' killed","c":"CNA","v":81164,"d":1.1,"surv":false,"boe":false,"live":false,"pil":false},{"t":"BJ Medical College Ahmedabad | Pics Show Air India Plane Crashed On Medical Students' Hostel","c":"NDTV","v":1844085,"d":1.5,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Air India Plane Crash LIVE: 265 Dead, Boeing Dreamliner's Black Box Recovered | Palki Sharma | N18G","c":"Firstpost","v":76569,"d":462.3,"surv":false,"boe":true,"live":true,"pil":false},{"t":"Ahmedabad Plane Crash News | Air India Flight With 242 Onboard Crashes In Ahmedabad, No Survivors","c":"NDTV","v":142709,"d":7.1,"surv":true,"boe":false,"live":false,"pil":false},{"t":"BREAKING LIVE: London-Bound Air India Flight Crashes Near Ahmedabad | London Gatwick Flight News","c":"CNBC-TV18","v":623966,"d":335.9,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Air India Flight 171 Pilots Last Message🔴LIVE : Black BOx | Mayday Call | Ahmedabad Plane Crash |RTV","c":"RTV","v":118278,"d":372.9,"surv":false,"boe":false,"live":true,"pil":true},{"t":"British national survives Air India plane crash","c":"Sky News","v":366106,"d":2.3,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Air India Crash: Boeing 787 Flight Crashes In Ahmedabad","c":"Newsweek","v":123309,"d":0.4,"surv":false,"boe":true,"live":false,"pil":false},{"t":"London-bound Air India flight crashes in Ahmedabad","c":"Al Arabiya English","v":78438,"d":0.7,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Experts Discuss What May Have Caused The Crash Of Air India Plane In Ahmedabad Minutes After Takeoff","c":"India Today","v":31529,"d":12.6,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Air India flight to London Gatwick crashes in Ahmedabad","c":"Guardian News","v":269285,"d":0.5,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Air India Boeing 787 Crashes Climbing Out Of Ahmedabad Airport","c":"Simple Flying","v":409965,"d":3.0,"surv":false,"boe":true,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash LIVE | London-Bound Air India Flight Crashes Near Ahmedabad Airport | N18L","c":"CNBC-TV18","v":599513,"d":617.2,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Air India Flight 171 Crashed, Leaving 241 Passengers And Crew Feared Dead | India Today News","c":"India Today","v":167878,"d":3.8,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash | Air India Plane crash in Ahmedabad | News9 | LIVE","c":"NEWS9 Live","v":1141007,"d":549.1,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Air India Plane Crash AI171 Crash Video बनाने वाले Aryan Asari ने क्या बताया? | Ahmedabad","c":"Dainik Jagran - दैनिक जागरण","v":285063,"d":3.7,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Watch: Moment Air India Plane Crashed in Ahmedabad | Subscribe to Firstpost | N18G","c":"Firstpost","v":193389,"d":0.7,"surv":false,"boe":false,"live":false,"pil":false},{"t":"🔥 Air India AI-171 Crash Explained | 3D Animation of Real Incident in Ahmedabad","c":"Allinonecontent","v":87612,"d":1.8,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash | Air India Cabin Crew's Grieving Family Speaks To NDTV","c":"NDTV","v":626907,"d":3.0,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash: One Survivor Found In Air India Flight | Public TV","c":"Public TV","v":454029,"d":4.3,"surv":true,"boe":false,"live":false,"pil":false},{"t":"CCTV footage shows moment Air India plane crashes in Ahmedabad","c":"Guardian News","v":603162,"d":0.5,"surv":false,"boe":false,"live":false,"pil":false},{"t":"'The door broke...': Lone survivor describes surviving Air India plane crash | Ahmedabad plane crash","c":"Business Standard","v":39680,"d":2.2,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Wreckage at crash site as Air India flight crashes shortly after take off from Ahmedabad airport","c":"The Press Democrat","v":37745,"d":2.2,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash Kills Over 260 People: World Mourns Air India's Major Tragedy | WATCH","c":"midday india","v":1973483,"d":3.2,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Footage shows aftermath at Air India flight 171 crash site","c":"Guardian News","v":521425,"d":1.2,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Video captures moment Air India flight crashes | DW News","c":"DW News","v":130778,"d":0.8,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash | One Survivor Found | Air India Plane Crash | News9","c":"NEWS9 Live","v":177532,"d":201.7,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Moment When Air India Dreamliner Crashed | Ahmedabad plane crash | Exact Moment Plane Crashed","c":"The Indian Express","v":618163,"d":3.5,"surv":false,"boe":true,"live":false,"pil":false},{"t":"No known survivors in Air India Flight 171 crash: City police commissioner","c":"Al Jazeera English","v":346039,"d":11.9,"surv":true,"boe":false,"live":false,"pil":false},{"t":"Air India Flight crashes near Ahmedabad airport #ahmedabadplanecrash","c":"The Hindu","v":650119,"d":0.5,"surv":false,"boe":false,"live":false,"pil":false},{"t":"Ahmedabad Plane Crash LIVE Updates | Air India Flight Going To London Crashes | Plane Crash | N18L","c":"CNN-News18","v":182627,"d":180.8,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Plane Crash in Ahmedabad Live:Air India Flight To London Crashes Moments After Take-Off In Ahmedabad","c":"moneycontrol","v":411530,"d":603.8,"surv":false,"boe":false,"live":true,"pil":false},{"t":"Ahmedabad: PM Modi Visits Air India Boeing-787 Plane Crash Site, Meets Survivor | Spotlight | N18G","c":"Firstpost","v":42135,"d":3.8,"surv":true,"boe":true,"live":false,"pil":false}],"sent":{"counts":{"positive":5215,"neutral":4542,"negative":8081},"likes":{"positive":57324,"neutral":24705,"negative":72425},"avgLikes":{"positive":10.99,"neutral":5.44,"negative":8.96},"meanCompound":-0.102,"total":17838},"byDay":[{"b":4,"neg":47.0,"neu":28.1,"pos":24.9,"n":3399},{"b":3,"neg":42.8,"neu":26.4,"pos":30.8,"n":7860},{"b":2,"neg":46.6,"neu":23.2,"pos":30.3,"n":3073},{"b":1,"neg":48.7,"neu":21.9,"pos":29.4,"n":1921},{"b":0,"neg":47.1,"neu":24.0,"pos":28.9,"n":1585}],"kwTitles":[["india",103],["crash",94],["air",93],["ahmedabad",82],["plane",74],["flight",32],["crashes",23],["live",19],["news",16],["survivor",13],["black",11],["box",11],["video",10],["airport",9],["london",9]],"kwComments":[["plane",2119],["india",1688],["boeing",1465],["crash",1282],["air",1227],["god",1161],["condolences",1133],["people",1042],["sad",1040],["pilot",980],["may",940],["families",886],["flight",787],["indian",753],["time",716]],"bigrams":[["air india",731],["rest peace",391],["plane crash",281],["condolences families",229],["loved ones",224],["god bless",198],["landing gear",198],["black box",196],["pilot error",191],["deepest condolences",188],["may god",167],["lost lives",150],["engine failure",144],["leave alone",130],["sad news",123]],"topComments":[{"s":"positive","x":"He lost his bro and survived from massive explode. Leave him aloneeeee for couple of days. Indian media needs a slap","l":4000},{"s":"positive","x":"Pilots are a rare breed of human beings . You did your best .","l":2800},{"s":"positive","x":"Heard his brother was on the flight too but a different row. Truly devastating; can't imagine the feeling, I hope he recovers well.","l":1900},{"s":"positive","x":"As a B777/787 captain, i’m heart breaking to hear that sentence from a fellow professional. May all who lost their lives be rest in peace","l":1300},{"s":"positive","x":"He knew his last moments were near, and still chose to act with courage and compassion. RIP","l":1200},{"s":"neutral","x":"If you can survive this in one piece then you can survive anything.","l":1100},{"s":"neutral","x":"Hospital should kick out these so called TRP journalists until his recovery","l":715},{"s":"neutral","x":"Not only did he survive, he walked out.","l":689},{"s":"neutral","x":"Condolences from Pakistan.","l":674},{"s":"neutral","x":"My condolences from Jamaica 🇯🇲.","l":571},{"s":"negative","x":"He survived the accident, but now he has to survive the real danger — news channels and their 47 interviews per hour!","l":4300},{"s":"negative","x":"leave him alone... let him take his time to recover mentally..","l":3300},{"s":"negative","x":"How this man walked away on his 2 legs from this horrific crash, is nothing short of a miracle!","l":3100},{"s":"negative","x":"Leave this poor man alone - he's been through the most severe trauma","l":1200},{"s":"negative","x":"We lost around 241 souls who were in the plane and 50+ dead at medical student’s hostel where the plane crashed. People on their way somewhere, making plans, maybe worried about work, or upset over so","l":1100}]};
+const $ = (s, el) => (el || document).querySelector(s);
+const fmt = v => v >= 1e6 ? (v/1e6).toFixed(1).replace(/\.0$/,'') + 'M'
+             : v >= 1e3 ? Math.round(v/1e3) + 'K' : String(v);
+const fmtFull = v => v.toLocaleString('en-US');
+const SCOL = { positive:'var(--pos)', neutral:'var(--neu)', negative:'var(--neg)' };
+
+/* ---------- tooltip ---------- */
+const tip = $('#tip');
+function bindTips(root){
+  root.querySelectorAll('[data-tip]').forEach(el => {
+    el.addEventListener('mousemove', e => {
+      tip.textContent = el.dataset.tip;
+      tip.style.opacity = 1;
+      const w = tip.offsetWidth;
+      tip.style.left = Math.min(e.clientX + 12, innerWidth - w - 8) + 'px';
+      tip.style.top = (e.clientY + 14) + 'px';
+    });
+    el.addEventListener('mouseleave', () => tip.style.opacity = 0);
+  });
+}
+
+/* ---------- filters state ---------- */
+const state = { channel:'', flags:{} };
+function filteredVideos(){
+  return DATA.videos.filter(v =>
+    (!state.channel || v.c === state.channel) &&
+    Object.keys(state.flags).every(f => !state.flags[f] || v[f]));
+}
+
+/* ---------- KPI row ---------- */
+function renderKPIs(){
+  const fv = filteredVideos();
+  const views = fv.reduce((a,v)=>a+v.v,0);
+  const filtered = state.channel || Object.values(state.flags).some(Boolean);
+  const s = DATA.sent;
+  $('#kpis').innerHTML = [
+    ['Videos' + (filtered ? ' (filtered)' : ''), fmtFull(fv.length), filtered ? 'of 93 total' : '42 channels'],
+    ['Views' + (filtered ? ' (filtered)' : ''), fmt(views), filtered ? 'of 45.0M total' : 'across all videos'],
+    ['Comments analyzed', fmtFull(s.total), 'one Firstpost video'],
+    ['Negative tone', '45.3%', 'mostly grief language'],
+    ['Positive tone', '29.2%', 'hope & solidarity'],
+    ['Mean compound', '−0.10', 'VADER, −1 to +1'],
+  ].map(([l,v,d]) => `<div class="kpi"><div class="lbl">${l}</div><div class="val">${v}</div><div class="sub2">${d}</div></div>`).join('');
+}
+
+/* ---------- bar lists ---------- */
+function barList(el, items, color, onClick){
+  if(!items.length){ el.innerHTML = '<div class="empty">No videos match this filter.</div>'; return; }
+  const max = Math.max(...items.map(i => i.value));
+  el.innerHTML = items.map((i,idx) => `
+    <div class="brow${onClick ? ' clickable' : ''}${i.selected ? ' sel' : ''}" data-i="${idx}">
+      <span class="lb" data-tip="${i.tip.replace(/"/g,'&quot;')}">${i.label}</span>
+      <span class="tr"><span class="bar" style="width:calc((100% - 58px) * ${(i.value/max).toFixed(3)});background:${color}"></span>
+      <span class="vl">${i.fmt ?? fmt(i.value)}</span></span>
+    </div>`).join('');
+  if(onClick) el.querySelectorAll('.brow').forEach(r =>
+    r.addEventListener('click', () => onClick(items[+r.dataset.i])));
+  bindTips(el);
+}
+
+function renderCoverage(){
+  const fv = filteredVideos();
+  const top = [...fv].sort((a,b)=>b.v-a.v).slice(0,10);
+  $('#tvTitle').textContent = `Top ${Math.min(10, top.length)} videos by views` +
+    (state.channel ? ` — ${state.channel}` : '');
+  barList($('#topVideos'), top.map(v => ({
+    label:v.t, value:v.v, tip:`${v.t} — ${v.c} · ${fmtFull(v.v)} views${v.d ? ' · ' + v.d + ' min' : ''}`
+  })), 'var(--accent)');
+
+  const byCh = {};
+  DATA.videos.filter(v => Object.keys(state.flags).every(f => !state.flags[f] || v[f]))
+    .forEach(v => { (byCh[v.c] = byCh[v.c] || {v:0,n:0}); byCh[v.c].v += v.v; byCh[v.c].n++; });
+  const chans = Object.entries(byCh).sort((a,b)=>b[1].v-a[1].v);
+  barList($('#topChannels'), chans.slice(0,10).map(([c,d]) => ({
+    label:c, value:d.v, selected: c === state.channel,
+    tip:`${c} · ${d.n} video${d.n>1?'s':''} · ${fmtFull(d.v)} total views`, channel:c
+  })), 'var(--accent)', item => {
+    state.channel = state.channel === item.channel ? '' : item.channel;
+    $('#chSel').value = state.channel;
+    renderKPIs(); renderCoverage();
+  });
+
+  $('#chTable').innerHTML = '<table><tr><th>Channel</th><th class="num">Videos</th><th class="num">Total views</th><th class="num">Avg views</th></tr>' +
+    chans.map(([c,d]) => `<tr><td>${c}</td><td class="num">${d.n}</td><td class="num">${fmtFull(d.v)}</td><td class="num">${fmtFull(Math.round(d.v/d.n))}</td></tr>`).join('') + '</table>';
+}
+
+/* ---------- sentiment segmented bar ---------- */
+let segMode = 'counts';
+function renderSeg(){
+  const src = DATA.sent[segMode];
+  const total = Object.values(src).reduce((a,b)=>a+b,0);
+  const order = ['positive','neutral','negative'];
+  $('#segBar').innerHTML = order.map(s => {
+    const pct = src[s]/total*100;
+    return `<div class="s-${s==='neutral'?'neu':'x'}" style="flex:${pct};background:${SCOL[s]}"
+      data-tip="${s}: ${fmtFull(src[s])} ${segMode==='counts'?'comments':'likes'} (${pct.toFixed(1)}%)">${pct>=12 ? pct.toFixed(1)+'%' : ''}</div>`;
+  }).join('');
+  $('#segLegend').innerHTML = order.map(s =>
+    `<span class="k"><span class="dot" style="background:${SCOL[s]}"></span>${s} · ${fmtFull(src[s])}
+     ${segMode==='counts' ? '(avg ' + DATA.sent.avgLikes[s].toFixed(1) + ' likes/comment)' : 'likes'}</span>`).join('');
+  bindTips($('#segBar'));
+}
+$('#tglN').addEventListener('click', () => { segMode='counts'; setTgl('tglN'); });
+$('#tglL').addEventListener('click', () => { segMode='likes'; setTgl('tglL'); });
+function setTgl(id){ ['tglN','tglL'].forEach(t => $('#'+t).setAttribute('aria-pressed', t===id)); renderSeg(); }
+
+/* ---------- trend chart (SVG) ---------- */
+function renderTrend(){
+  const d = [...DATA.byDay].sort((a,b)=>b.b-a.b);           // oldest -> newest
+  const W=460, H=240, L=34, R=12, T=14, B=34;
+  const x = i => L + i*(W-L-R)/(d.length-1);
+  const yMax = 55, y = v => T + (1 - v/yMax)*(H-T-B);
+  const series = [['positive','pos'],['neutral','neu'],['negative','neg']];
+  let g = '';
+  for(let v=0; v<=50; v+=10) g += `<line class="gl" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/>
+    <text x="${L-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`;
+  const lbl = b => b>0 ? '~'+b+'d before' : 'scrape day';
+  let marks = '';
+  series.forEach(([name,key]) => {
+    const pts = d.map((r,i)=>`${x(i)},${y(r[key])}`).join(' ');
+    marks += `<polyline points="${pts}" fill="none" stroke="${SCOL[name]}" stroke-width="2" stroke-linejoin="round"/>`;
+    d.forEach((r,i)=>{ marks += `<circle cx="${x(i)}" cy="${y(r[key])}" r="4.5" fill="${SCOL[name]}"
+      stroke="var(--surface)" stroke-width="2" data-tip="${lbl(r.b)}: ${r[key]}% ${name} (n=${fmtFull(r.n)})"/>`; });
+  });
+  const xt = d.map((r,i)=>`<text x="${x(i)}" y="${H-10}" text-anchor="middle">${r.b>0?'~'+r.b+'d':'scrape'}</text>`).join('');
+  $('#trend').innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img"
+       aria-label="Line chart of sentiment share by approximate day">${g}${xt}${marks}
+       <line class="ax" x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}"/></svg>
+     <div class="legend">${series.map(([n])=>`<span class="k"><span class="dot" style="background:${SCOL[n]}"></span>${n}</span>`).join('')}
+       <span class="k" style="color:var(--muted)">share of comments, %</span></div>`;
+  bindTips($('#trend'));
+  $('#dayTable').innerHTML = '<table><tr><th>Approx. day</th><th class="num">Comments</th><th class="num">% neg</th><th class="num">% neu</th><th class="num">% pos</th></tr>' +
+    d.map(r=>`<tr><td>${lbl(r.b)}</td><td class="num">${fmtFull(r.n)}</td><td class="num">${r.neg}</td><td class="num">${r.neu}</td><td class="num">${r.pos}</td></tr>`).join('') + '</table>';
+  barList($('#volume'), d.map(r => ({
+    label: lbl(r.b), value: r.n, fmt: fmtFull(r.n), tip:`${lbl(r.b)} · ${fmtFull(r.n)} comments`
+  })), 'var(--accent)');
+}
+
+/* ---------- keywords ---------- */
+function renderKw(key){
+  const items = DATA[key].map(([w,n]) => ({label:w, value:n, fmt:fmtFull(n), tip:`“${w}” · ${fmtFull(n)} occurrences`}));
+  barList($('#kwList'), items, key==='kwTitles' ? 'var(--accent)' : 'var(--accent-2)');
+}
+document.querySelectorAll('.tab[data-kw]').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab[data-kw]').forEach(o => o.setAttribute('aria-pressed', o===t));
+  renderKw(t.dataset.kw);
+}));
+
+/* ---------- quotes ---------- */
+function renderQuotes(s){
+  $('#quotes').innerHTML = DATA.topComments.filter(q => q.s === s).map(q => `
+    <div class="q"><div class="meta"><span class="dot" style="background:${SCOL[q.s]}"></span>
+      ${q.s} · ${fmtFull(q.l)} likes</div><p>${q.x.replace(/</g,'&lt;')}</p></div>`).join('');
+}
+document.querySelectorAll('.tab[data-s]').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab[data-s]').forEach(o => o.setAttribute('aria-pressed', o===t));
+  renderQuotes(t.dataset.s);
+}));
+
+/* ---------- controls wiring ---------- */
+const chSel = $('#chSel');
+[...new Set(DATA.videos.map(v=>v.c))].sort().forEach(c => chSel.append(new Option(c, c)));
+chSel.addEventListener('change', () => { state.channel = chSel.value; renderKPIs(); renderCoverage(); });
+document.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', () => {
+  const f = ch.dataset.flag;
+  state.flags[f] = !state.flags[f];
+  ch.setAttribute('aria-pressed', String(!!state.flags[f]));
+  renderKPIs(); renderCoverage();
+}));
+
+renderKPIs(); renderCoverage(); renderSeg(); renderTrend();
+renderKw('kwComments'); renderQuotes('positive');
+</script>
+
+</body>
+</html>

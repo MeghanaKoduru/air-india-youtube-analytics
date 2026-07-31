@@ -2,6 +2,8 @@
 
 End-to-end data-analyst project on the Kaggle dataset **["Air India Ahmedabad Crash: YouTube Video Dataset"](https://www.kaggle.com/datasets/lucaspimeentel/air-india-ahmedabad-crash-youtube-video-dataset)** — Python, SQL (SQLite), VADER sentiment analysis, and a BI-ready dashboard layer.
 
+**▶ [Live interactive dashboard](https://meghanakoduru.github.io/air-india-youtube-analytics/)** — KPIs, channel/theme filters, sentiment trend, keywords, and key takeaways (GitHub Pages, no install).
+
 > **Scope & ethics.** This project analyzes *media coverage and audience language* around the 12 June 2025 crash of Air India flight AI171. It draws **no conclusions about the cause of the crash**, and sentiment scores measure the tone of comment language — not factual accuracy and not public verdicts about culpability. See [Ethical considerations](#limitations--ethical-considerations).
 
 ## Project overview
