@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large raw data — keep the repo light; download from Kaggle (see README)
+data/raw/*.xlsx
+
+# Generated database (rebuilt by src/run_pipeline.py)
+air_india_youtube.db

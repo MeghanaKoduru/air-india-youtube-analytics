@@ -1,0 +1,16 @@
+sentiment,comment_text,comment_likes,vader_compound
+positive,He lost his bro and survived from massive explode. Leave him aloneeeee for couple of days. Indian media needs a slap,4000,0.34
+positive,Pilots are a rare breed of human beings . You did your best .,2800,0.6369
+positive,"Heard his brother was on the flight too but a different row. Truly devastating; can't imagine the feeling, I hope he recovers well.",1900,0.4301
+positive,"As a B777/787 captain, i’m heart breaking to hear that sentence from a fellow professional. May all who lost their lives be rest in peace",1300,0.7717
+positive,"He knew his last moments were near, and still chose to act with courage and compassion. RIP",1200,0.7351
+neutral,If you can survive this in one piece then you can survive anything.,1100,0.0
+neutral,Hospital should kick out these so called TRP journalists until his recovery,715,0.0
+neutral,"Not only did he survive, he walked out.",689,0.0
+neutral,Condolences from Pakistan.,674,0.0
+neutral,My condolences from Jamaica 🇯🇲.,571,0.0
+negative,"He survived the accident, but now he has to survive the real danger — news channels and their 47 interviews per hour!",4300,-0.6996
+negative,leave him alone... let him take his time to recover mentally..,3300,-0.296
+negative,"How this man walked away on his 2 legs from this horrific crash, is nothing short of a miracle!",3100,-0.6643
+negative,Leave this poor man alone - he's been through the most severe trauma,1200,-0.8826
+negative,"We lost around 241 souls who were in the plane and 50+ dead at medical student’s hostel where the plane crashed. People on their way somewhere, making plans, maybe worried about work, or upset over something small. And in a moment, everything changed. It's hard to process how fragile life really is. How quickly lives turned into memories So if you're reading this, breathe. Say what you've been holding back. Be kinder. Let go of that petty fight. Text that person. Laugh a little louder tonight. Because all our plans, all our worries, they mean nothing if we forget to live and love while we can. Because tomorrow is never promised. For those on board and was at the hostel, for their families, we're holding space 💔🫂.",1100,-0.8606

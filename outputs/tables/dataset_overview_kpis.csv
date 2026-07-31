@@ -1,0 +1,12 @@
+kpi,value
+total_videos,93
+unique_channels,42
+total_comments_scraped,17838
+videos_with_scraped_comments,1
+total_views,44975743
+average_views_per_video,483610.1
+median_views_per_video,293171.0
+total_likes,not available in dataset
+total_comment_count,not available in dataset
+total_engagement_rate,not available in dataset
+date_range,not available (video table has no publish dates)

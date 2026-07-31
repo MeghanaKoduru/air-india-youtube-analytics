@@ -1,0 +1,4 @@
+sentiment,count,percent,mean_compound
+positive,5215,29.2,0.526
+neutral,4542,25.5,0.0
+negative,8081,45.3,-0.566

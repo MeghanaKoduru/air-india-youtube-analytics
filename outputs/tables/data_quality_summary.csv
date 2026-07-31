@@ -1,0 +1,3 @@
+table,original_rows,final_rows,duplicate_rows_removed,empty_text_rows_dropped,missing_values_before,missing_values_after,columns_converted_to_numeric,columns_converted_to_datetime,unmapped_logical_fields
+comments,17964,17838,95,31,53880,35664,"comment_likes, reply_count",approx_published_date (derived from relative labels),"title, channel_name, views, likes, comment_count, duration_seconds, description, tags, published_date, subscriber_count"
+videos,94,93,0,0,1,0,"views, duration_seconds",none,"likes, comment_count, published_date, subscriber_count, comment_id, comment_text, comment_author, comment_likes, published_relative, reply_level, reply_count"
